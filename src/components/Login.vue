@@ -6,13 +6,32 @@
 </template>
 
 <script setup>
-import {} from 'vue'
-import { useRouter } from 'vue-router';
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+import request from "../utils/request";
 
-const router=useRouter()
-const goHome=()=>{
-  router.push('/welcome')
-}
+onMounted(() => {
+  // request({
+  //   method: "get",
+  //   url: "/login",
+  //   data: {
+  //     name: "jack",
+  //   },
+  // }).then((res) => {
+  //   console.log(res);
+  // });
+
+  request
+    .get("login", { name: "jack" }, { mock: true, loading: true })
+    .then((res) => {
+      console.log(res);
+    });
+});
+
+const router = useRouter();
+const goHome = () => {
+  router.push("/welcome");
+};
 </script>
 <style scoped lang='scss'>
 </style>

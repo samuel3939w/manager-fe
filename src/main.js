@@ -7,7 +7,5 @@ import axios from "axios";
 import config from "./config";
 
 const app = createApp(App);
-axios.get(config.mockApi+'/login').then((res)=>{
-    console.log(res);
-})
+
 app.use(router).use(ElementPlus).mount("#app");
