@@ -3,15 +3,10 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue-demi";
-import storage from "./utils/storage";
 
-onMounted(() => {
-  storage.setItem("userInfo", { name: "tom", age: 16 });
-  console.log(storage.getItem("userInfo"));
-  storage.clearItem("userInfo");
-});
 </script>
 
-<style>
+<style lang="scss">
+@import "./assets/style/reset.css";
+@import "./assets/style/index.scss";
 </style>
