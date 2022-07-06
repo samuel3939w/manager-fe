@@ -24,7 +24,7 @@ onMounted(() => {
   request
     .get("login", { name: "jack" }, { mock: true, loading: true })
     .then((res) => {
-      console.log(res);
+      
     });
 });
 
