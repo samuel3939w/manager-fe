@@ -5,6 +5,7 @@ import axios from "axios";
 import { ElMessage } from "element-plus";
 import config from "./../config";
 import router from "./../router";
+import storage from "./storage";
 const TOKEN_INVALID = "Token認證失敗, 請重新登入";
 const NETWORK_ERROR = "網路請求異常, 請稍後重試";
 
@@ -17,7 +18,8 @@ const service = axios.create({
 //請求攔截
 service.interceptors.request.use((req) => {
   const headers = req.headers;
-  if (!headers.Authorization) headers.Authorization = "Bear Sam";
+  if (!headers.Authorization)
+    headers.Authorization = `Bearer ${storage.getItem("userInfo").token}`;
   return req;
 });
 
@@ -26,7 +28,7 @@ service.interceptors.response.use((res) => {
   const { code, data, msg } = res.data;
   if (code === 200) {
     return data;
-  } else if (code === 40001) {
+  } else if (code === 50001) {
     ElMessage.error(TOKEN_INVALID);
     setTimeout(() => {
       router.push("/login");

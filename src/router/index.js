@@ -17,7 +17,7 @@ const routes = [
         meta: {
           title: "歡迎頁",
         },
-        component: () => import("../views/Welcome.vue"),
+        component: () => import("@/views/Welcome.vue"),
       },
     ],
   },
@@ -27,7 +27,7 @@ const routes = [
     meta: {
       title: "登入頁",
     },
-    component: () => import("../views/Login.vue"),
+    component: () => import("@/views/Login.vue"),
   },
 ];
 

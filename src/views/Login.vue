@@ -31,13 +31,13 @@
 import { ref } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import { login } from "../api/index";
+import { loginApi } from "../api/index";
 
 const user = ref({
   userName: "",
   password: "",
 });
-const rules = ref({
+const rules = {
   userName: [
     {
       required: true,
@@ -52,7 +52,7 @@ const rules = ref({
       trigger: "blur",
     },
   ],
-});
+};
 
 const userForm = ref(null);
 const router = useRouter();
@@ -60,7 +60,7 @@ const store = useStore();
 const loginClick = () => {
   userForm.value.validate(async (valid) => {
     if (valid) {
-      const res = await login(user.value);
+      const res = await loginApi(user.value);
       store.commit("saveUserInfo", res);
       router.push("/welcome");
     } else {
