@@ -19,6 +19,22 @@ const routes = [
         },
         component: () => import("@/views/Welcome.vue"),
       },
+      {
+        name: "user",
+        path: "/system/user",
+        meta: {
+          title: "用戶管理",
+        },
+        component: () => import("@/views/User.vue"),
+      },
+      {
+        name: "menu",
+        path: "/system/menu",
+        meta: {
+          title: "用戶管理",
+        },
+        component: () => import("@/views/Menu.vue"),
+      },
     ],
   },
   {

@@ -32,7 +32,7 @@ service.interceptors.response.use((res) => {
     ElMessage.error(TOKEN_INVALID);
     setTimeout(() => {
       router.push("/login");
-    }, 15000);
+    }, 1500);
     return Promise.reject(TOKEN_INVALID);
   } else {
     ElMessage.error(msg || NETWORK_ERROR);
@@ -46,13 +46,14 @@ function request(options) {
     options.params = options.data;
   }
 
+  let isMock = config.mock;
   if (typeof options.mock != "undefined") {
-    config.mock = options.mock;
+    isMock = options.mock;
   }
   if (config.env === "prod") {
     service.defaults.baseURL = config.baseApi;
   } else {
-    service.defaults.baseURL = config.mock ? config.mockApi : config.baseApi;
+    service.defaults.baseURL = isMock ? config.mockApi : config.baseApi;
   }
 
   return service(options);

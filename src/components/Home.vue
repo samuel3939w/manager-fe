@@ -22,9 +22,11 @@
       <div class="nav-top">
         <div class="nav-left">
           <div class="menu-fold" @click="toggle">
-            <el-icon><Fold /></el-icon>
+            <el-icon class="icon"><Fold /></el-icon>
           </div>
-          <div class="bread">麵包屑</div>
+          <div class="bread">
+            <BreadCrumb />
+          </div>
         </div>
 
         <div class="user-info">
@@ -47,9 +49,7 @@
         </div>
       </div>
       <div class="wrapper">
-        <div class="main-page">
-          <router-view></router-view>
-        </div>
+        <router-view></router-view>
       </div>
     </div>
   </div>
@@ -61,6 +61,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { noticeCountApi, menuListApi } from "./../api/index.js";
 import TreeMenu from "./TreeMenu.vue";
+import BreadCrumb from "@/components/BreadCrumb.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -111,8 +112,8 @@ const toggle = () => {
 };
 
 //顯示被選中導航
-const activeMenu=ref('')
-activeMenu.value=location.hash.slice(1)
+const activeMenu = ref("");
+activeMenu.value = location.hash.slice(1);
 </script>
 <style scoped lang='scss'>
 .basic-layout {
@@ -155,10 +156,12 @@ activeMenu.value=location.hash.slice(1)
     //合併
     &.fold {
       margin-left: 64px;
+      transition: margin-left 0.5s;
     }
     //展開
     &.unfold {
       margin-left: 200px;
+      transition: margin-left 0.5s;
     }
     .nav-top {
       height: 50px;
@@ -172,6 +175,7 @@ activeMenu.value=location.hash.slice(1)
         align-items: center;
         .menu-fold {
           display: flex;
+          margin-bottom: 3px;
           cursor: pointer;
           margin-right: 15px;
           font-size: 18px;
