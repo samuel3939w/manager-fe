@@ -18,8 +18,8 @@ const service = axios.create({
 //請求攔截
 service.interceptors.request.use((req) => {
   const headers = req.headers;
-  if (!headers.Authorization)
-    headers.Authorization = `Bearer ${storage.getItem("userInfo").token}`;
+  const { token = "" } = storage.getItem("userInfo") || {};
+  if (!headers.Authorization) headers.Authorization = "Bearer " + token;
   return req;
 });
 

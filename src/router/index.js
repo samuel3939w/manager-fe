@@ -31,7 +31,7 @@ const routes = [
         name: "menu",
         path: "/system/menu",
         meta: {
-          title: "用戶管理",
+          title: "菜單管理",
         },
         component: () => import("@/views/Menu.vue"),
       },
