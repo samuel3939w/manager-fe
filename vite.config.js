@@ -18,4 +18,8 @@ export default defineConfig({
     },
   },
   plugins: [vue()],
+  // 解決 await loadAsyncRoutes() 無法在方法前面加上await問題
+  // build:{
+  //   target:['edge90','chrome90','firefox90','safari15']
+  // }
 });

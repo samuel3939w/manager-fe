@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { } from "vue";
+import { onMounted } from "vue";
 
 const vue3Icon = (icon) => {
   if (typeof icon === "string") {

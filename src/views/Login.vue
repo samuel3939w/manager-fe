@@ -31,7 +31,9 @@
 import { ref } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import { loginApi } from "../api/index";
+import { loginApi, permissionListApi } from "../api/index";
+import storage from "../utils/storage";
+import { generateRoute } from "../utils/utils";
 
 const user = ref({
   userName: "",
@@ -68,6 +70,23 @@ const loginClick = () => {
     }
   });
 };
+
+// async function loadAsyncRoutes() {
+//   const userInfo = storage.getItem("userInfo") || {};
+//   if (userInfo.token) {
+//     try {
+//       const { menuList } = await permissionListApi();
+//       const routes = generateRoute(menuList);
+//       routes.map((route) => {
+//         const url = `./../views/${route.component}.vue`;
+//         route.component = () => import(url);
+//         router.addRoute("home", route);
+//       });
+//     } catch (error) {
+//       console.log(error.stack);
+//     }
+//   }
+// }
 </script>
 <style scoped lang='scss'>
 .login-wrapper {

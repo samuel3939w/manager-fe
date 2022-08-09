@@ -3,8 +3,10 @@
     <div :class="['nav-side', isCollapse ? 'fold' : 'unfold']">
       <!-- 系統LOGO -->
       <div class="logo">
-        <img src="./../assets/logo.png" alt="" />
-        <span>Manager</span>
+        <el-icon class="icon" :size="22">
+          <Monitor />
+        </el-icon>
+        <span>Pro-Manager</span>
       </div>
       <!-- 導航菜單 -->
       <el-menu
@@ -59,7 +61,7 @@
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { noticeCountApi, menuListApi } from "./../api/index.js";
+import { noticeCountApi, permissionListApi } from "./../api/index.js";
 import TreeMenu from "./TreeMenu.vue";
 import BreadCrumb from "@/components/BreadCrumb.vue";
 
@@ -82,8 +84,10 @@ const userMenu = ref([]);
 //獲取導航菜單
 const getMenuList = async () => {
   try {
-    const list = await menuListApi();
-    userMenu.value = list;
+    const { menuList, actionList } = await permissionListApi();
+    userMenu.value = menuList;
+    store.commit("saveMenuList", menuList);
+    store.commit("saveActionList", actionList);
   } catch (error) {
     console.error(error);
   }
@@ -100,7 +104,7 @@ userInfo.value = store.state.userInfo;
 const handleLogout = (key) => {
   if (key == "email") return;
   store.commit("saveUserInfo", "");
-  userInfo.value = null;
+  userInfo.value = {};
   router.push("/login");
 };
 
@@ -140,8 +144,8 @@ activeMenu.value = location.hash.slice(1);
       align-items: center;
       font-size: 18px;
       height: 50px;
-      img {
-        margin: 0 16px;
+      .icon {
+        margin: 0 21px;
         width: 32px;
         height: 32px;
       }
@@ -197,6 +201,7 @@ activeMenu.value = location.hash.slice(1);
       background: #eef0f3;
       padding: 20px;
       height: calc(100vh - 50px);
+      overflow: scroll;
       .main-page {
         background: #fff;
         height: 100%;

@@ -24,10 +24,21 @@
     </div>
     <div class="base-table">
       <div class="action">
-        <el-button type="primary" @click="handleCreate">新增</el-button>
-        <el-button type="danger" @click="handlePatchDel">批量刪除</el-button>
+        <el-button type="primary" @click="handleCreate" v-has="'user-create'"
+          >新增</el-button
+        >
+        <el-button
+          type="danger"
+          @click="handlePatchDel"
+          v-has="'user-patch-delete'"
+          >批量刪除</el-button
+        >
       </div>
-      <el-table :row-style="{height:'50px'}" :data="userList" @selection-change="handleSelectionChange">
+      <el-table
+        :row-style="{ height: '50px' }"
+        :data="userList"
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column type="selection" width="55" />
         <el-table-column
           v-for="item in columns"
@@ -40,23 +51,31 @@
         </el-table-column>
         <el-table-column label="操作" width="150">
           <template #default="scope">
-            <el-button @click="handleEdit(scope.row)" size="small">
+            <el-button
+              @click="handleEdit(scope.row)"
+              size="small"
+              v-has="'user-edit'"
+            >
               編輯
             </el-button>
-            <el-button type="danger" size="small" @click="handleDel(scope.row)"
+            <el-button
+              type="danger"
+              size="small"
+              @click="handleDel(scope.row)"
+              v-has="'user-delete'"
               >刪除</el-button
             >
           </template>
         </el-table-column>
       </el-table>
       <el-pagination
-          class="pagination"
-          background
-          layout="prev,pager,next"
-          :total="pager.total"
-          :page-size="pager.pageSize"
-          @current-change="handleCurrentChange"
-        />
+        class="pagination"
+        background
+        layout="prev,pager,next"
+        :total="pager.total"
+        :page-size="pager.pageSize"
+        @current-change="handleCurrentChange"
+      />
     </div>
     <el-dialog title="用戶新增" v-model="showModal" :before-close="handleClose">
       <el-form
@@ -66,11 +85,7 @@
         :rules="rules"
       >
         <el-form-item label="用戶名" prop="userName">
-          <el-input
-            :disabled="action == 'edit'"
-            v-model="userForm.userName"
-            placeholder="請輸入用戶名稱"
-          />
+          <el-input v-model="userForm.userName" placeholder="請輸入用戶名稱" />
         </el-form-item>
         <el-form-item label="信箱" prop="userEmail">
           <el-input v-model="userForm.userEmail" placeholder="請輸入用戶信箱">
@@ -129,7 +144,7 @@ import { ElMessage } from "element-plus";
 import { nextTick, onMounted, ref, toRaw } from "vue";
 import {
   deptListApi,
-  roleListApi,
+  roleAllListApi,
   userDelApi,
   userListApi,
   userSubmitApi,
@@ -143,6 +158,7 @@ const user = ref({
 });
 const userList = ref([]);
 const pager = ref({
+  total: 0,
   pageNum: 1,
   pageSize: 10,
 });
@@ -159,6 +175,10 @@ const columns = ref([
   {
     label: "用戶信箱",
     prop: "userEmail",
+    width:170,
+    formatter(row, column, value) {
+      return `${value}@pro-partner.com.tw`
+    },
   },
   {
     label: "用戶角色",
@@ -196,6 +216,12 @@ const columns = ref([
     label: "最後登入時間",
     prop: "lastLoginTime",
     width: 185,
+    formatter(row, column, value) {
+      if (!value) {
+        return;
+      }
+      return formateDate(new Date(value));
+    },
   },
 ]);
 
@@ -234,7 +260,7 @@ const handleCurrentChange = (current) => {
 onMounted(() => {
   getUserList();
   getDeptList();
-  getRoleList();
+  getRoleAllList();
 });
 
 // 用戶單個刪除
@@ -333,8 +359,8 @@ const getDeptList = async () => {
 const roleList = ref([]);
 
 // 角色列表查詢
-const getRoleList = async () => {
-  const list = await roleListApi();
+const getRoleAllList = async () => {
+  const list = await roleAllListApi();
   roleList.value = list;
 };
 
