@@ -152,13 +152,14 @@
 
 <script setup>
 import { ElMessage } from "element-plus";
-import { ref, reactive, onMounted } from "vue";
+import { reactive, onMounted } from "vue";
 import { applyListApi, leaveOperateApi } from "../api";
 import { formateDate } from "../utils/utils";
 
 const queryForm = reactive({
   applyState: 1,
 });
+
 const pager = reactive({
   pageNum: 1,
   pageSize: 10,
@@ -371,7 +372,7 @@ const handleDetail = (row) => {
   showDetailModel.value = true;
 };
 
-const handleDelete =async (_id) => {
+const handleDelete = async (_id) => {
   try {
     const params = { _id, action: "delete" };
     const res = await leaveOperateApi(params);
