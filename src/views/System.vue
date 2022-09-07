@@ -352,7 +352,7 @@ const handleDetail = (row) => {
 const handleDelete = async (_id) => {
   try {
     const params = { _id, action: "delete" };
-    const res = await leaveOperateApi(params);
+    const res = await systemOperateApi(params);
     ElMessage.success("刪除成功");
     handleClose();
     getApplyList();
