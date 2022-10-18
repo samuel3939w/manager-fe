@@ -33,7 +33,7 @@
         <el-table-column label="操作" width="150">
           <template #default="scope">
             <el-button
-              v-if="
+              v-show="
                 scope.row.curAuditUserName == userInfo.userName &&
                 [1, 2].includes(scope.row.applyState)
               "
@@ -175,9 +175,65 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
+          <el-button @click="handleAddSignatureOpen" type="primary"
+            >加簽</el-button
+          >
           <el-button @click="handleApprove('pass')">審核通過</el-button>
           <el-button @click="handleApprove('refuse')" type="danger"
             >駁回</el-button
+          >
+        </span>
+      </template>
+    </el-dialog>
+    <!-- 加簽彈框 -->
+    <el-dialog
+      title="加簽"
+      width="50%"
+      v-model="showAddSignatureModel"
+      destroy-on-close
+      :before-close="handleAddSignatureClose"
+    >
+      <el-form
+        ref="addSignature"
+        :model="addSignatureForm"
+        label-width="120px"
+        label-suffix=":"
+        :rules="addSignatureRules"
+      >
+        <el-form-item label="部門" prop="dept">
+          <el-select
+            placeholder="請選擇部門"
+            v-model="addSignatureForm.dept"
+            @change="handleDept"
+          >
+            <el-option
+              v-for="item in deptList"
+              :key="item._id"
+              :label="item.deptName"
+              :value="item._id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="員工" prop="user">
+          <el-select
+            placeholder="請選擇員工"
+            v-model="addSignatureForm.user"
+            @change="handleUser"
+          >
+            <el-option
+              v-for="item in userByDeptList"
+              :key="item.userId"
+              :label="item.userName"
+              :value="`${item.userId}/${item.userName}/${item.userEmail}`"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleAddSignature">確定</el-button>
+          <el-button @click="handleAddSignatureClose" type="danger"
+            >取消</el-button
           >
         </span>
       </template>
@@ -186,10 +242,17 @@
 </template>
 
 <script setup>
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { ref, reactive, onMounted } from "vue";
 import { useStore } from "vuex";
-import { systemApproveApi, systemListApi, systemOperateApi } from "../api";
+import {
+  systemApproveApi,
+  systemListApi,
+  systemOperateApi,
+  allDeptListApi,
+  allUserListByDeptApi,
+  systemAddSignatureApi,
+} from "../api";
 import { formateDate } from "../utils/utils";
 
 const queryForm = reactive({
@@ -329,6 +392,7 @@ const userInfo = store.state.userInfo;
 // 初始化接口調用
 onMounted(() => {
   getApplyList();
+  getAllDeptList();
 });
 
 // 表單規則
@@ -361,9 +425,14 @@ const getApplyList = async () => {
 };
 
 const dialogForm = ref(null);
+const form = ref(null);
 // 重置查询表单
-const handleReset = () => {
-  dialogForm.value.resetFields();
+const handleReset = (value) => {
+  if (value == "form") {
+    form.value.resetFields();
+  } else {
+    dialogForm.value.resetFields();
+  }
 };
 
 // 彈窗關閉
@@ -390,6 +459,70 @@ const handleApprove = (action) => {
       } catch (error) {}
     }
   });
+};
+
+// 加簽流程
+const deptList = ref([]);
+const userByDeptList = ref([]);
+const showAddSignatureModel = ref(false);
+const addSignature = ref(null);
+const addSignatureForm = reactive({});
+const addSignatureRules = {
+  dept: [
+    {
+      required: true,
+      message: "請選擇部門",
+      trigger: "blur",
+    },
+  ],
+  user: [
+    {
+      required: true,
+      message: "請選擇員工",
+      trigger: "blur",
+    },
+  ],
+};
+// 獲取所有部門名稱
+const getAllDeptList = async () => {
+  deptList.value = await allDeptListApi();
+};
+const handleAddSignatureOpen = () => {
+  showAddSignatureModel.value = true;
+};
+const handleAddSignatureClose = () => {
+  showAddSignatureModel.value = false;
+  handleAddSignatureReset();
+};
+const handleAddSignatureReset = () => {
+  addSignature.value.resetFields();
+  userByDeptList.value = [];
+};
+
+// 提交加簽
+const handleAddSignature = () => {
+  addSignature.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        await systemAddSignatureApi({
+          ...addSignatureForm,
+          _id: detail.value._id,
+        });
+        ElMessage.success("加簽成功");
+        handleAddSignatureClose();
+      } catch (error) {}
+    }
+  });
+};
+
+// 選擇部門觸發
+const handleDept = async (val) => {
+  userByDeptList.value = await allUserListByDeptApi({ deptId: val });
+};
+
+const handleUser = (val) => {
+  const [userId, userName, userEmail] = val.split("/");
+  Object.assign(addSignatureForm, { userId, userName, userEmail });
 };
 </script>
 <style scoped lang='scss'>

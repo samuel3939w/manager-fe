@@ -3,8 +3,8 @@
     <div class="modal">
       <div class="title">葡眾後台系統</div>
       <el-form ref="userForm" :model="user" status-icon :rules="rules">
-        <el-form-item prop="userName">
-          <el-input type="text" v-model="user.userName">
+        <el-form-item prop="userId">
+          <el-input type="text" v-model="user.userId">
             <template #prefix>
               <el-icon><User /></el-icon>
             </template>
@@ -36,11 +36,11 @@ import storage from "../utils/storage";
 import { generateRoute } from "../utils/utils";
 
 const user = ref({
-  userName: "",
+  userId: "",
   password: "",
 });
 const rules = {
-  userName: [
+  userId: [
     {
       required: true,
       message: "請輸入用戶名",
@@ -62,6 +62,7 @@ const store = useStore();
 const loginClick = () => {
   userForm.value.validate(async (valid) => {
     if (valid) {
+      //user.value.userId=user.value.userId.toUpperCase()
       const res = await loginApi(user.value);
       store.commit("saveUserInfo", res);
       router.push("/welcome");

@@ -163,7 +163,6 @@
 import { ElMessage } from "element-plus";
 import { ref, reactive, onMounted } from "vue";
 import {
-  leaveOperateApi,
   systemListApi,
   systemOperateApi,
   ItUserListApi,
@@ -295,7 +294,7 @@ const handleUser = (val) => {
 
 // 分頁事件處理
 const handleCurrentChange = (current) => {
-  pager.value.pageNum = current;
+  pager.pageNum = current;
   getApplyList();
 };
 

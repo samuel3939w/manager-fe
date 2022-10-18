@@ -84,6 +84,9 @@
         label-width="100px"
         :rules="rules"
       >
+        <el-form-item label="用戶ID" prop="userId">
+          <el-input :disabled="action==='edit'" v-model="userForm.userId" placeholder="請輸入用戶ID" />
+        </el-form-item>
         <el-form-item label="用戶名" prop="userName">
           <el-input v-model="userForm.userName" placeholder="請輸入用戶名稱" />
         </el-form-item>
@@ -175,9 +178,9 @@ const columns = ref([
   {
     label: "用戶信箱",
     prop: "userEmail",
-    width:170,
+    width: 170,
     formatter(row, column, value) {
-      return `${value}@pro-partner.com.tw`
+      return `${value}@pro-partner.com.tw`;
     },
   },
   {
@@ -311,6 +314,13 @@ const userForm = ref({
 
 // 定義表單驗證規則
 const rules = {
+  userId: [
+    {
+      required: true,
+      message: "請輸入用戶ID",
+      trigger: "blur",
+    },
+  ],
   userName: [
     {
       required: true,

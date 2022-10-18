@@ -56,6 +56,15 @@ export const allUserListApi = () => {
   });
 };
 
+export const allUserListByDeptApi = (params) => {
+  return request({
+    url: "/users/bydept/list",
+    method: "get",
+    data: params,
+    mock: false,
+  });
+};
+
 // 上禮拜做到獲取資訊人員列表
 export const ItUserListApi = () => {
   return request({
@@ -97,6 +106,15 @@ export const deptListApi = (params) => {
     url: "/dept/list",
     method: "get",
     data: params,
+    mock: false,
+  });
+};
+
+export const allDeptListApi = () => {
+  return request({
+    url: "/dept/all/list",
+    method: "get",
+    data: {},
     mock: false,
   });
 };
@@ -194,6 +212,15 @@ export const systemOperateApi = (params) => {
 export const systemApproveApi = (params) => {
   return request({
     url: "/system/approve",
+    method: "post",
+    data: params,
+    mock: false,
+  });
+};
+
+export const systemAddSignatureApi = (params) => {
+  return request({
+    url: "/system/addSignature",
     method: "post",
     data: params,
     mock: false,
