@@ -68,19 +68,14 @@
         label-width="120px"
         :rules="rules"
       >
-        <el-form-item label="資訊負責人" prop="evaluatePerson">
-          <el-select
-            placeholder="請選擇負責人"
-            v-model="systemForm.evaluatePerson"
-            @change="handleUser"
-          >
-            <el-option
-              v-for="item in userList"
-              :key="item.userId"
-              :label="item.userName"
-              :value="`${item.userId}/${item.userName}/${item.userEmail}`"
-            ></el-option>
-          </el-select>
+        <el-form-item label="需要完成時間" prop="deadline">
+          <el-date-picker
+            v-model="systemForm.deadline"
+            type="date"
+            label="需要完成時間"
+            placeholder="請選擇日期"
+            style="width: 100%"
+          />
         </el-form-item>
         <el-form-item label="緊急程度" prop="urgentLevel">
           <el-radio-group v-model="systemForm.urgentLevel">
@@ -106,6 +101,24 @@
             placeholder="請輸入需求說明"
             v-model="systemForm.reasons"
           />
+        </el-form-item>
+        <el-form-item>
+          <el-upload
+            ref="uploadRef"
+            class="upload-demo"
+            action=""
+            :http-request="uploading"
+            :on-remove="handleRemove"
+            :multiple="true"
+          >
+            <template #trigger>
+              <el-button type="primary">上傳文件</el-button>
+            </template>
+
+            <template #tip>
+              <div class="el-upload__tip"></div>
+            </template>
+          </el-upload>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -148,10 +161,19 @@
         <el-form-item label="評估說明">
           <div>{{ detail.evaluateInstruction }}</div>
         </el-form-item>
+        <el-form-item label="需要完成時間">
+          <div>{{ formateDate(new Date(detail.deadline)).split(" ")[0] }}</div>
+        </el-form-item>
         <el-form-item label="工時">
           <div>
             <span>{{ detail.workhours }}/h</span>
             <span>({{ detail.workhours * 2000 }}元)</span>
+          </div>
+        </el-form-item>
+        <el-form-item label="附加檔案" v-if="detail.fileList"
+          ><div v-for="(item, index) in detail.fileList" :key="index">
+            <a :href="item.url">{{ item.name }}</a>
+            &nbsp;|&nbsp;
           </div>
         </el-form-item>
       </el-form>
@@ -166,8 +188,11 @@ import {
   systemListApi,
   systemOperateApi,
   ItUserListApi,
+  systemfileUploadApi,
+  systemDeleteFileApi,
 } from "../api";
 import { formateDate } from "../utils/utils";
+import config from "../config/index";
 
 const queryForm = reactive({
   applyState: 1,
@@ -203,6 +228,14 @@ const columns = reactive([
     prop: "evaluatePerson",
     formatter: (row, column, value) => {
       return row.evaluatePersonName;
+    },
+  },
+  {
+    label: "需要完成時間",
+    prop: "deadline",
+    width: 110,
+    formatter: (row, column, value) => {
+      return formateDate(new Date(value)).split(" ")[0];
     },
   },
   {
@@ -244,7 +277,7 @@ const detail = ref({});
 // create:創建 delete:作廢
 const action = ref("");
 // 創建休假彈框表單
-const systemForm = ref({});
+const systemForm = ref({ fileList: [] });
 // 初始化接口調用
 onMounted(() => {
   getApplyList();
@@ -253,11 +286,23 @@ onMounted(() => {
 
 // 表單規則
 const rules = {
-  evaluatePerson: [
+  deadline: [
     {
       required: true,
-      message: "請選擇需求評估人",
+      message: "請選擇日期",
       trigger: "blur",
+    },
+    {
+      required: true,
+      trigger: "blur",
+      validator: (rule, value, callback) => {
+        const today = new Date().getDate();
+        const valueDate = value.getDate();
+        if (valueDate < today) {
+          callback(new Error("不可選擇過去的時間"));
+        }
+        callback();
+      },
     },
   ],
   urgentLevel: [
@@ -322,7 +367,11 @@ const handleApply = () => {
 };
 
 // 彈窗關閉
-const handleClose = () => {
+const handleClose = (flag) => {
+  if (systemForm.value.fileList.length != 0) {
+    ElMessage.error("請先刪除所有上傳文件");
+    return;
+  }
   handleReset("dialogForm");
   showModal.value = false;
 };
@@ -332,10 +381,20 @@ const handleSubmit = () => {
   dialogForm.value.validate(async (valid) => {
     if (valid) {
       try {
+        systemForm.value.fileList.map((item) => {
+          item.url = item.url.split("upload\\")[1];
+        });
         const params = { ...systemForm.value, action: action.value };
         const res = await systemOperateApi(params);
         ElMessage.success("創建成功");
-        handleClose();
+        // 清空 el-upload 已上傳的文件列表
+        uploadRef.value.clearFiles();
+        // 清空fileList裡面的檔案
+        systemForm.value.fileList = [];
+        // 與 handleClose 同作用
+        handleReset("dialogForm");
+        showModal.value = false;
+        // 刷新列表
         getApplyList();
       } catch (error) {}
     }
@@ -344,6 +403,9 @@ const handleSubmit = () => {
 
 const handleDetail = (row) => {
   const data = { ...row };
+  data.fileList.map((item) => {
+    item.url = config.NginxUrl + item.url;
+  });
   detail.value = data;
   showDetailModel.value = true;
 };
@@ -357,11 +419,48 @@ const handleDelete = async (_id) => {
     getApplyList();
   } catch (error) {}
 };
+
+const uploadRef = ref(null);
+
+// 上傳文件
+const uploading = async (val) => {
+  const formData = new FormData();
+  formData.append("file", val.file);
+  const res = await systemfileUploadApi(formData);
+  systemForm.value.fileList.push(res.uploadpaths[0]);
+};
+
+// 刪除文件
+const handleRemove = (val) => {
+  systemForm.value.fileList.map(async (item) => {
+    if (
+      item.name ==
+      val.name
+        .replace(" ", "_")
+        .replace(/[`~!@#$%^&*()|\-=?;:'",<>\{\}\\\/]/gi, "_")
+    ) {
+      const deleteUrl = item.url;
+      await systemDeleteFileApi({ deleteUrl });
+    }
+  });
+  systemForm.value.fileList = systemForm.value.fileList.filter(
+    (item) =>
+      !(
+        item.name ==
+        val.name
+          .replace(" ", "_")
+          .replace(/[`~!@#$%^&*()|\-=?;:'",<>\{\}\\\/]/gi, "_")
+      )
+  );
+  ElMessage.success("刪除成功");
+};
 </script>
 <style scoped lang='scss'>
 .leave-manage {
   .dash {
     margin-left: 10px;
   }
+}
+.upload-link {
 }
 </style>

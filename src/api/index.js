@@ -226,3 +226,21 @@ export const systemAddSignatureApi = (params) => {
     mock: false,
   });
 };
+
+export const systemfileUploadApi = (params) => {
+  return request({
+    url: "/system/fileupload",
+    method: "post",
+    data: params,
+    mock: false,
+  });
+};
+
+export const systemDeleteFileApi = (params) => {
+  return request({
+    url: "/system/deleteFile",
+    method: "post",
+    data: params,
+    mock: false,
+  });
+};

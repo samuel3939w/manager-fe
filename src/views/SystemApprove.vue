@@ -86,6 +86,9 @@
         <el-form-item label="需求評估人">
           <div>{{ editForm.evaluatePersonName }}</div>
         </el-form-item>
+        <el-form-item label="需要完成時間">
+          <div>{{ formateDate(new Date(detail.deadline)).split(" ")[0] }}</div>
+        </el-form-item>
         <el-form-item label="需求說明">
           <div>{{ editForm.reasons }}</div>
         </el-form-item>
@@ -155,6 +158,9 @@
         <el-form-item label="資訊評估結果">
           <div>{{ detail.evaluateResult }}</div>
         </el-form-item>
+        <el-form-item label="需要完成時間">
+          <div>{{ formateDate(new Date(detail.deadline)).split(" ")[0] }}</div>
+        </el-form-item>
         <el-form-item label="評估說明">
           <div>{{ detail.evaluateInstruction }}</div>
         </el-form-item>
@@ -162,6 +168,12 @@
           <div>
             <span>{{ detail.workhours }}/h</span>
             <span>({{ detail.workhours * 2000 }}元)</span>
+          </div>
+        </el-form-item>
+        <el-form-item label="附加檔案" v-if="detail.fileList"
+          ><div v-for="(item, index) in detail.fileList" :key="index">
+            <a :href="item.url">{{ item.name }}</a>
+            &nbsp;|&nbsp;
           </div>
         </el-form-item>
         <el-form-item label="備註" prop="remark">
@@ -254,6 +266,7 @@ import {
   systemAddSignatureApi,
 } from "../api";
 import { formateDate } from "../utils/utils";
+import config from "../config/index";
 
 const queryForm = reactive({
   applyState: 1,
@@ -289,6 +302,14 @@ const columns = reactive([
     prop: "evaluatePerson",
     formatter: (row, column, value) => {
       return row.evaluatePersonName;
+    },
+  },
+  {
+    label: "需要完成時間",
+    prop: "deadline",
+    width: 110,
+    formatter: (row, column, value) => {
+      return formateDate(new Date(value)).split(" ")[0];
     },
   },
   {
@@ -443,6 +464,9 @@ const handleClose = () => {
 
 const handleDetail = (row) => {
   const data = { ...row };
+  data.fileList.map((item) => {
+    item.url = config.NginxUrl + item.url;
+  });
   detail.value = data;
   showDetailModel.value = true;
 };
