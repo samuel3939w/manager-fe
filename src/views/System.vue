@@ -74,7 +74,7 @@
             type="date"
             label="需要完成時間"
             placeholder="請選擇日期"
-            style="width: 100%"
+            style="width: 30%"
           />
         </el-form-item>
         <el-form-item label="緊急程度" prop="urgentLevel">
@@ -415,7 +415,6 @@ const handleDelete = async (_id) => {
     const params = { _id, action: "delete" };
     const res = await systemOperateApi(params);
     ElMessage.success("刪除成功");
-    handleClose();
     getApplyList();
   } catch (error) {}
 };

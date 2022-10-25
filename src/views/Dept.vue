@@ -109,7 +109,7 @@
 
 <script>
 import { allUserListApi, deptListApi, deptOperateApi } from "../api";
-import {formateDate} from './../utils/utils'
+import { formateDate } from "./../utils/utils";
 export default {
   name: "dept",
   data() {

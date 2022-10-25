@@ -378,7 +378,6 @@ const handleDelete = async (_id) => {
     const params = { _id, action: "delete" };
     const res = await leaveOperateApi(params);
     ElMessage.success("刪除成功");
-    handleClose();
     getApplyList();
   } catch (error) {}
 };
