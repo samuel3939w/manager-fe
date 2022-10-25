@@ -116,7 +116,7 @@
             </template>
 
             <template #tip>
-              <div class="el-upload__tip"></div>
+              <div class="el-upload__tip" style="color:red">*檔案大小不可超過500mb</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -460,7 +460,5 @@ const handleRemove = (val) => {
   .dash {
     margin-left: 10px;
   }
-}
-.upload-link {
 }
 </style>
