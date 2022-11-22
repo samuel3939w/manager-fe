@@ -116,7 +116,9 @@
             </template>
 
             <template #tip>
-              <div class="el-upload__tip" style="color:red">*檔案大小不可超過500mb</div>
+              <div class="el-upload__tip" style="color: red">
+                *檔案大小不可超過500mb
+              </div>
             </template>
           </el-upload>
         </el-form-item>
@@ -149,9 +151,6 @@
         <el-form-item label="申請人">
           <div>{{ detail.applyUser.userName }}</div>
         </el-form-item>
-        <el-form-item label="需求評估人">
-          <div>{{ detail.evaluatePersonName }}</div>
-        </el-form-item>
         <el-form-item label="當前審核人">
           <div>{{ detail.curAuditUserName }}</div>
         </el-form-item>
@@ -177,6 +176,21 @@
           </div>
         </el-form-item>
       </el-form>
+      <!-- 簽核紀錄 -->
+      <el-timeline>
+        <el-timeline-item
+          v-for="(item, index) in detail.auditLogs"
+          :key="index"
+          :timestamp="formateDate(new Date(item.createTime))"
+        >
+          {{ item.action }}&nbsp;&nbsp;{{ item.userName }}
+        </el-timeline-item>
+      </el-timeline>
+      <template #footer>
+        <el-button type="primary" v-show="![1, 2].includes(detail.applyState)" @click="onPrintClick(detail._id)">
+          列印
+        </el-button>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -193,6 +207,7 @@ import {
 } from "../api";
 import { formateDate } from "../utils/utils";
 import config from "../config/index";
+import { useRouter } from "vue-router";
 
 const queryForm = reactive({
   applyState: 1,
@@ -221,13 +236,6 @@ const columns = reactive([
     prop: "",
     formatter: (row, column, value) => {
       return row.applyUser.userName;
-    },
-  },
-  {
-    label: "需求評估人",
-    prop: "evaluatePerson",
-    formatter: (row, column, value) => {
-      return row.evaluatePersonName;
     },
   },
   {
@@ -296,9 +304,12 @@ const rules = {
       required: true,
       trigger: "blur",
       validator: (rule, value, callback) => {
-        const today = new Date().getDate();
+        const today = new Date();
+        const todayDate = new Date().getDate();
         const valueDate = value.getDate();
-        if (valueDate < today) {
+        if (todayDate == valueDate) {
+          callback();
+        } else if (value < today) {
           callback(new Error("不可選擇過去的時間"));
         }
         callback();
@@ -452,6 +463,14 @@ const handleRemove = (val) => {
       )
   );
   ElMessage.success("刪除成功");
+};
+
+/**
+ * 列印按鈕點擊事件
+ */
+const router = useRouter();
+const onPrintClick = (id) => {
+  router.push(`/print/${id}`);
 };
 </script>
 <style scoped lang='scss'>

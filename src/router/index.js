@@ -22,6 +22,14 @@ const routes = [
         },
         component: () => import("@/views/Welcome.vue"),
       },
+      {
+        name: "print",
+        path: "/print/:id",
+        meta: {
+          title: "列印頁",
+        },
+        component: () => import("@/views/Print.vue"),
+      },
       // {
       //   name: "user",
       //   path: "/system/user",

@@ -5,6 +5,8 @@ import store from "./store";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
+// 指令
+import installDirective from '@/directives'
 
 const app = createApp(App);
 
@@ -23,6 +25,8 @@ app.directive("has", {
     }
   },
 });
+
+installDirective(app)
 
 // 註冊全局圖示
 for (let [key, component] of Object.entries(ElementPlusIconsVue)) {

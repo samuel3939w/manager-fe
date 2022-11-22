@@ -46,8 +46,16 @@
               @click="handleEdit(scope.row)"
               size="small"
               v-has="'system-edit'"
+              v-show="[1, 2].includes(scope.row.applyState)"
             >
               編輯
+            </el-button>
+            <el-button
+              @click="handleWatch(scope.row)"
+              size="small"
+              v-show="![1, 2].includes(scope.row.applyState)"
+            >
+              查看
             </el-button>
           </template>
         </el-table-column>
@@ -120,6 +128,16 @@
           />
         </el-form-item>
       </el-form>
+      <!-- 簽核紀錄 -->
+      <el-timeline>
+        <el-timeline-item
+          v-for="(item, index) in editForm.auditLogs"
+          :key="index"
+          :timestamp="formateDate(new Date(item.createTime))"
+        >
+          {{ item.action }}&nbsp;&nbsp;{{ item.userName }}
+        </el-timeline-item>
+      </el-timeline>
       <template #footer>
         <el-button @click="handleEditClose">取消</el-button>
         <el-button type="primary" @click="handleEditSubmit">確定</el-button>
@@ -185,6 +203,16 @@
           />
         </el-form-item>
       </el-form>
+      <!-- 簽核紀錄 -->
+      <el-timeline>
+        <el-timeline-item
+          v-for="(item, index) in detail.auditLogs"
+          :key="index"
+          :timestamp="formateDate(new Date(item.createTime))"
+        >
+          {{ item.action }}&nbsp;&nbsp;{{ item.userName }}
+        </el-timeline-item>
+      </el-timeline>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="handleAddSignatureOpen" type="primary"
@@ -194,6 +222,65 @@
           <el-button @click="handleApprove('refuse')" type="danger"
             >駁回</el-button
           >
+        </span>
+      </template>
+    </el-dialog>
+    <!-- 查看彈框 -->
+    <el-dialog
+      title="詳情"
+      width="50%"
+      v-model="showWatchModel"
+      destroy-on-close
+    >
+      <el-form label-width="120px" label-suffix=":">
+        <el-form-item label="申請單位">
+          <div>{{ watchDetail.deptName }}</div>
+        </el-form-item>
+        <el-form-item label="申請人">
+          <div>{{ watchDetail.applyUser.userName }}</div>
+        </el-form-item>
+        <el-form-item label="當前審核人">
+          <div>{{ watchDetail.curAuditUserName }}</div>
+        </el-form-item>
+        <el-form-item label="資訊評估結果">
+          <div>{{ watchDetail.evaluateResult }}</div>
+        </el-form-item>
+        <el-form-item label="評估說明">
+          <div>{{ watchDetail.evaluateInstruction }}</div>
+        </el-form-item>
+        <el-form-item label="需要完成時間">
+          <div>
+            {{ formateDate(new Date(watchDetail.deadline)).split(" ")[0] }}
+          </div>
+        </el-form-item>
+        <el-form-item label="工時">
+          <div>
+            <span>{{ watchDetail.workhours }}/h</span>
+            <span>({{ watchDetail.workhours * 2000 }}元)</span>
+          </div>
+        </el-form-item>
+        <el-form-item label="附加檔案" v-if="watchDetail.fileList"
+          ><div v-for="(item, index) in watchDetail.fileList" :key="index">
+            <a :href="item.url">{{ item.name }}</a>
+            &nbsp;|&nbsp;
+          </div>
+        </el-form-item>
+      </el-form>
+      <!-- 簽核紀錄 -->
+      <el-timeline>
+        <el-timeline-item
+          v-for="(item, index) in watchDetail.auditLogs"
+          :key="index"
+          :timestamp="formateDate(new Date(item.createTime))"
+        >
+          {{ item.action }}&nbsp;&nbsp;{{ item.userName }}
+        </el-timeline-item>
+      </el-timeline>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="onPrintClick(watchDetail._id)">
+            列印
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -254,7 +341,7 @@
 </template>
 
 <script setup>
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElMessage } from "element-plus";
 import { ref, reactive, onMounted } from "vue";
 import { useStore } from "vuex";
 import {
@@ -267,6 +354,7 @@ import {
 } from "../api";
 import { formateDate } from "../utils/utils";
 import config from "../config/index";
+import { useRouter } from "vue-router";
 
 const queryForm = reactive({
   applyState: 1,
@@ -343,7 +431,18 @@ const columns = reactive([
     },
   },
 ]);
+// 查看彈框
+const showWatchModel = ref(false);
+const watchDetail = ref({});
 
+const handleWatch = (row) => {
+  const data = { ...row };
+  data.fileList.map((item) => {
+    item.url = config.NginxUrl + item.url;
+  });
+  watchDetail.value = data;
+  showWatchModel.value = true;
+};
 // 審核彈框
 const showDetailModel = ref(false);
 // 編輯彈框
@@ -547,6 +646,14 @@ const handleDept = async (val) => {
 const handleUser = (val) => {
   const [userId, userName, userEmail] = val.split("/");
   Object.assign(addSignatureForm, { userId, userName, userEmail });
+};
+
+/**
+ * 列印按鈕點擊事件
+ */
+const router = useRouter();
+const onPrintClick = (id) => {
+  router.push(`/print/${id}`);
 };
 </script>
 <style scoped lang='scss'>

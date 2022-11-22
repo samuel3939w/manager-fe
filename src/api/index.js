@@ -200,6 +200,15 @@ export const systemListApi = (params) => {
   });
 };
 
+export const systemFindOneApi = (params) => {
+  return request({
+    url: "/system/findOne",
+    method: "get",
+    data: params,
+    mock: false,
+  });
+};
+
 export const systemOperateApi = (params) => {
   return request({
     url: "/system/operate",
